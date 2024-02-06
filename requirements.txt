@@ -1,0 +1,8 @@
+langchain
+unstructured # Document loading
+chromadb # Vector storage
+openai # For embeddings
+tiktoken  # For embeddings
+fuzzywuzzy # For greetings NLP
+dotenv # For .env
+spacy # For semantic meaning
