@@ -1,7 +1,7 @@
 import argparse
 from langchain.vectorstores.chroma import Chroma
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 from fuzzywuzzy import fuzz
@@ -14,18 +14,19 @@ COUNTER_FILE = "consecutive_apology_counter.txt"
 load_dotenv()
 
 PROMPT_TEMPLATE = """
-Hello! I'm here to assist you in the best way possible. How may I help you today?
+Hello! How can I assist you today?
 
-Your question or request:
+Your inquiry:
 
 {query_text}
 
 ---
 
-Additional information based on your query (please provide only important details):
+Relevant information:
 
 {context}
 """
+
 
 def contains_apology(text):
     apology_phrases = ["I'm sorry", "I apologize", "my apologies", "sorry for", "Apologies", "Sorry"]
@@ -123,7 +124,7 @@ def main():
             return
 
     # Prepare the DB.
-    embedding_function = OpenAIEmbeddings()
+    embedding_function = OpenAIEmbeddings(openai_api_key = "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")
     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
 
     # Search the DB.
@@ -156,7 +157,7 @@ def main():
     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
     prompt = prompt_template.format(query_text=query_text, context=context_text)
 
-    model = ChatOpenAI()
+    model = ChatOpenAI(openai_api_key = "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")
     response_text = model.predict(prompt)
 
     # Check if the response contains an apology

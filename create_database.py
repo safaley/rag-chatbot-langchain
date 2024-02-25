@@ -1,7 +1,7 @@
-from langchain.document_loaders import DirectoryLoader
+from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain.vectorstores.chroma import Chroma
 import shutil
 import nltk
@@ -36,6 +36,7 @@ def generate_data_store():
 
 def load_documents():
     loader = DirectoryLoader(DATA_PATH, glob="*.md")
+    # loader = DirectoryLoader(DATA_PATH, glob="*.pdf")
     documents = loader.load()
     return documents
 
@@ -65,7 +66,7 @@ def save_to_chroma(chunks: list[Document]):
     db = Chroma.from_documents(
         chunks, OpenAIEmbeddings(
         model="text-embedding-ada-002",
-        openai_api_key= "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"
+        openai_api_key= "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"
         ), persist_directory=CHROMA_PATH
     )
     db.persist()
