@@ -25,7 +25,7 @@ function runPythonScript(queryText) {
 
 // Example usage:
 async function main() {
-  const queryText = "Who is Alice";
+  const queryText = "What are generators";
 
   try {
     const response = await runPythonScript(queryText);

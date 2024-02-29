@@ -1,3 +1,6 @@
+import csv
+import PyPDF2  # Import PyPDF2 for PDF processing
+
 from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
@@ -23,6 +26,7 @@ CHROMA_PATH = "chroma"
 DATA_PATH = "data/books"
 load_dotenv()
 
+
 def main():
     generate_data_store()
 
@@ -33,11 +37,17 @@ def generate_data_store():
     save_to_chroma(chunks)
 
 
-
 def load_documents():
-    loader = DirectoryLoader(DATA_PATH, glob="*.md")
-    # loader = DirectoryLoader(DATA_PATH, glob="*.pdf")
-    documents = loader.load()
+    loaders = [
+        DirectoryLoader(DATA_PATH, glob="*.md"),
+        DirectoryLoader(DATA_PATH, glob="*.csv"),  # Load CSV files
+        DirectoryLoader(DATA_PATH, glob="*.pdf"),  # Load PDF files
+    ]
+
+    documents = []
+    for loader in loaders:
+        documents.extend(loader.load())
+
     return documents
 
 
@@ -51,9 +61,18 @@ def split_text(documents: list[Document]):
     chunks = text_splitter.split_documents(documents)
     print(f"Split {len(documents)} documents into {len(chunks)} chunks.")
 
-    document = chunks[10]
-    print(document.page_content)
-    print(document.metadata)
+    # Handle PDF files specifically
+    for doc in documents:
+        if doc.metadata.get("extension") == ".pdf":
+            with open(doc.metadata["file_path"], "rb") as pdf_file:  # Open in binary mode
+                pdf_reader = PyPDF2.PdfReader(pdf_file)
+                text = ""
+                for page_num in range(len(pdf_reader.pages)):
+                    page = pdf_reader.pages[page_num]
+                    page_text = page.extract_text()
+                    text += page_text
+
+                doc.page_content = text  # Update page_content with extracted text
 
     return chunks
 
@@ -65,9 +84,10 @@ def save_to_chroma(chunks: list[Document]):
     # Create a new DB from the documents.
     db = Chroma.from_documents(
         chunks, OpenAIEmbeddings(
-        model="text-embedding-ada-002",
-        openai_api_key= "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"
-        ), persist_directory=CHROMA_PATH
+            model="text-embedding-ada-002",
+            openai_api_key="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"
+        ),
+        persist_directory=CHROMA_PATH
     )
     db.persist()
     print(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")

@@ -7,3 +7,4 @@ fuzzywuzzy # For greetings NLP
 dotenv # For .env
 spacy # For semantic meaning
 langchain-openai
+python-Levenshtein
